@@ -1,0 +1,62 @@
+version: '3'
+services:
+
+  #PHP Service
+  bonsae_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bonsae_app
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: bonsae_app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - bonsae-network
+
+  #Nginx Service
+  bonsae_nginx:
+    image: nginx:1.15
+    container_name: bonsae_nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - bonsae-network
+
+  #MySQL Service
+  bonsae_mysql:
+    image: mysql:5.7.22
+    container_name: bonsae_mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: bonsae_academy
+      MYSQL_ROOT_PASSWORD: root
+      SERVICE_TAGS: dev
+      SERVICE_NAME: bonsae_mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - bonsae-network
+
+#Docker Networks
+networks:
+  bonsae-network:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
