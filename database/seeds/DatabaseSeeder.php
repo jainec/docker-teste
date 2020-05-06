@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        //a
         // $this->call(UserSeeder::class);
         factory(Turma::class, 10)->create();
     }
